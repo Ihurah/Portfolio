@@ -22,7 +22,6 @@ app.get('/', (_req, res) => {
 
 app.use('/api/github', githubRoutes);
 
-// Serve static files from the client dist directory
 const distPath = path.join(__dirname, '../client/dist');
 app.use(express.static(distPath, {
   index: 'index.html',
@@ -30,7 +29,7 @@ app.use(express.static(distPath, {
   etag: false,
 }));
 
-// Handle 404 - serve 404.html for SPA routes not found
+
 app.use((_req, res) => {
   res.status(404).sendFile(path.join(distPath, '404.html'));
 });

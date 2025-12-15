@@ -1,17 +1,11 @@
 import axios from 'axios';
 
-// Determine API base URL:
-// - If `VITE_API_BASE` is provided at build time, use it.
-// - Otherwise, when running on localhost prefer the local server address used during development.
-// - In production (public host), use a relative `/api` so the browser does not attempt to access
-//   the user's local network (this was triggering Chrome's "local network" permission prompt).
 const envBase = (import.meta as any).env?.VITE_API_BASE;
 const API_BASE_URL = envBase
   ?? (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
     ? 'http://127.0.0.1:3001/api'
     : '/api');
 
-// Username to fetch from GitHub if server API is not available.
 const GITHUB_USERNAME = (import.meta as any).env?.VITE_GITHUB_USERNAME || 'Ihurah';
 
 export interface Repo {id: number; name: string; description: string; language: string; stargazers_count: number; html_url: string; updated_at: string;}
@@ -19,8 +13,6 @@ export interface Repo {id: number; name: string; description: string; language: 
 export const fetchGitHubRepos = async (): Promise<Repo[]> => {
   const serverUrl = `${API_BASE_URL}/github/repos`;
 
-  // Try server-provided API first (if present). If it fails (CORS, 404, network),
-  // fall back to GitHub's public API so static deployments still show projects.
   try {
     console.debug('[fetchGitHubRepos] trying server api', serverUrl);
     const response = await axios.get<Repo[]>(serverUrl, { timeout: 4000 });
@@ -36,7 +28,6 @@ export const fetchGitHubRepos = async (): Promise<Repo[]> => {
     console.debug('[fetchGitHubRepos] server API failed, falling back to GitHub public API', serverErrMessage);
   }
 
-  // Fallback: GitHub public REST API (unauthenticated). Be aware of rate limits for unauthenticated requests.
   try {
     const ghUrl = `https://api.github.com/users/${GITHUB_USERNAME}/repos?per_page=100&sort=updated`;
     console.debug('[fetchGitHubRepos] requesting github public api', ghUrl);
@@ -54,7 +45,6 @@ export const fetchGitHubRepos = async (): Promise<Repo[]> => {
     return mapped;
   } catch (error: any) {
     console.error('[fetchGitHubRepos] github public api failed', error?.message || error);
-    // Return empty array so UI shows friendly empty state instead of crashing
     return [];
   }
 };

@@ -8,14 +8,12 @@ const distPath = path.join(__dirname, '../dist');
 const srcPath = path.join(__dirname, '../src');
 const publicPath = path.join(__dirname, '../public');
 
-// Read the built CSS (from src since Vite merges them)
 const srcAppCssPath = path.join(srcPath, 'App.css');
 const srcIndexCssPath = path.join(srcPath, 'index.css');
 const distStylePath = path.join(distPath, 'assets/style.css');
 
 let mergedCss = '';
 
-// Read both CSS files and merge
 try {
   if (fs.existsSync(srcIndexCssPath)) {
     mergedCss += fs.readFileSync(srcIndexCssPath, 'utf-8') + '\n';
@@ -27,7 +25,6 @@ try {
   console.error('Error reading CSS files:', err);
 }
 
-// Write merged CSS to dist
 if (mergedCss) {
   try {
     fs.writeFileSync(distStylePath, mergedCss, 'utf-8');
